@@ -2,6 +2,18 @@
 
 Canonical skill content: `skills/{skill-name}/SKILL.md`. Root manifest: `plugin.json` (agent-plugins.org v1.0.0).
 
+## Quick Install (any agent)
+
+```bash
+scripts/install-for-agent.sh                    # interactive picker, times the install
+scripts/install-for-agent.sh claude-code         # non-interactive
+scripts/install-for-agent.sh cursor user         # scope: project (default) or user
+```
+
+Wraps `gh skill install itential/builder-skills --agent <agent> --all`. Requires a `gh` version with `gh skill` support (`gh skill --help`). Supported `--agent` values: `github-copilot`, `claude-code`, `cursor`, `codex`, plus 40+ others `gh skill install --help` lists.
+
+## Per-Vendor (manual)
+
 ## Claude Code
 
 Install:
