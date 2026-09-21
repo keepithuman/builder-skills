@@ -64,13 +64,15 @@ Install:
 gh skill install itential/builder-skills <skill-name>
 ```
 
-Or clone the repo. `.github/skills/<name>/SKILL.md` is committed and ready.
+Or clone the repo. `copilot` reads `.github/skills/`, `.agents/skills/`, and `.claude/skills/` — all three are committed and ready; no install step needed.
 
 Invoke:
 ```text
 /builder-agent
 ```
 Or describe the task and let Copilot auto-route.
+
+Verified live (`copilot skill list`, `copilot --plugin-dir . skill list`): all 17 skills load with zero errors.
 
 ## Regenerate Local-Repo Mirrors
 
