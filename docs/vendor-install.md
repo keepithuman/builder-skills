@@ -35,7 +35,7 @@ Invoke:
 Install:
 ```bash
 codex plugin marketplace add itential/builder-skills
-codex plugin add itential-builder-skills
+codex plugin add itential-builder@itential-builder
 ```
 
 Or clone the repo. `.agents/skills/<name>/SKILL.md` is committed and ready.
