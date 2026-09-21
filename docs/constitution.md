@@ -57,12 +57,12 @@ Versioning follows semantic versioning:
 
 ## Compliance Review
 
-Every PR that changes `AGENTS.md`, `skills/`, `.claude/`, `.github/prompts`, `.cursor/rules`, `codex/`, `customizations/`, or generation scripts must answer:
+Every PR that changes `AGENTS.md`, `skills/`, `plugin.json`, `.claude/`, `.claude-plugin/`, `.agents/`, `customizations/`, or generation scripts must answer:
 
-1. Did canonical source change first?
-2. Were vendor artifacts regenerated?
+1. Did canonical source (`skills/`) change first?
+2. Were `.claude/skills/` and `.agents/skills/` regenerated (`scripts/generate-vendor-wrappers.sh`)?
 3. Did `scripts/check-generated.sh` pass?
-4. Does the change preserve AAIF repo-local behavior?
-5. Does the change preserve Claude/Codex/Cursor/Copilot UX expectations?
+4. If `plugin.json` changed, does it still validate against the current `agent-plugins.org/schemas/1.0.0/plugin.schema.json`?
+5. Does the change preserve Claude Code / Codex / Cursor / Copilot install and invocation expectations (see `docs/vendor-install.md`)?
 6. Do customization files respect the priority model and constitution?
 7. Are secrets excluded from tracked files?

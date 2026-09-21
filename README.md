@@ -49,7 +49,7 @@ The result is infrastructure automation that is traceable, repeatable, and deliv
 |-------------|---------|-------|
 | Itential Platform | 6.x | Target platform for every skill |
 | IAG | 5.x | Only for the `/iag` skill |
-| AI coding tool | — | [Claude Code](https://claude.ai/code) is the primary target (`.claude/skills/<name>/SKILL.md`, plugin install, `/plugin update`). Copilot reads the same `.claude/skills` path. Codex CLI and Cursor read `.agents/skills` instead — symlinked here to `.claude/skills`. See `AGENTS.md`. |
+| AI coding tool | — | [Claude Code](https://claude.ai/code) is the primary target (`.claude/skills/<name>/SKILL.md`, or `claude plugin install`). GitHub Copilot, Cursor, and Codex CLI each install `plugin.json` + `skills/` directly, or read their own local-repo mirror (`.github/skills/`, `.agents/skills/`). See `AGENTS.md` and `docs/vendor-install.md`. |
 
 ---
 

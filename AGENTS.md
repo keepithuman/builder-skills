@@ -2,10 +2,10 @@
 
 This project contains skills for assisting developers on the Itential Platform. Read this first, then use the skills for detailed API references.
 
-**Cross-tool note:** skills follow the open Agent Skills convention (`SKILL.md`, `name`/`description` frontmatter). Claude Code and Copilot read `.claude/skills`; Codex CLI and Cursor read `.agents/skills` instead, which mirrors `.claude/skills` via symlinks — same content, no changes needed. One caveat: `${CLAUDE_PLUGIN_ROOT}/helpers/...` paths are a Claude Code runtime variable. If it's unset, resolve it as this repo's root (the directory containing `.claude-plugin/plugin.json`).
+**Cross-tool note:** Canonical skill content: `skills/{skill-name}/SKILL.md`. Local-repo mirrors: `.claude/skills/` (Claude Code), `.agents/skills/` (Codex CLI, Cursor), `.github/skills/` (GitHub Copilot) — real copies, edit `skills/` and run `scripts/generate-vendor-wrappers.sh` to update them. Plugin install: `plugin.json` (Codex, Copilot, Cursor); `.claude-plugin/plugin.json` (Claude Code). Invoke: `/skill-name` (Claude Code, Cursor, Copilot), `$skill-name` or `/skills` (Codex). See `docs/vendor-install.md`.
 
-> **Experimental, under test in this PR — not yet the shipped model above:** this PR proposes an alternate source/generated architecture conformant to the [Agent Plugins v1.0.0 specification](https://agent-plugins.org/) (root-level `plugin.json`, canonical skill content at `skills/{skill-name}/SKILL.md`). `AGENTS.md` is the cross-vendor guide; `.claude/skills/` is a **symlinked** mirror of `skills/`, not a copy (see `scripts/generate-vendor-wrappers.sh`/`scripts/check-vendor-skills.sh`) — this replaces an earlier version of this PR that copied `.claude/skills/` and separately generated `.claude/commands/*.md`, which caused Claude Code to register each skill twice under two different names. For agents without a native Skill tool, treat each `/skill-name` reference as a pointer to `skills/skill-name/SKILL.md`. Project governance lives in `docs/constitution.md`.
->
+`${CLAUDE_PLUGIN_ROOT}/helpers/...` paths are a Claude Code runtime variable. If unset, resolve as this repo's root.
+
 > ## Customization Layers
 >
 > Before acting, check optional customization guidance in this order:

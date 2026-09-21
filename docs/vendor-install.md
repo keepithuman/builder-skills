@@ -1,104 +1,78 @@
 # Vendor Install And Command Guide
 
-This repository is AAIF-aligned around `AGENTS.md` and canonical skill content in `skills/`.
-
-Different AI coding tools expose different command systems. The repository provides thin vendor wrappers where useful, but `AGENTS.md` and `skills/` remain the source of truth.
+Canonical skill content: `skills/{skill-name}/SKILL.md`. Root manifest: `plugin.json` (agent-plugins.org v1.0.0).
 
 ## Claude Code
 
-Claude gets the richest command experience.
-
-Install through the Claude plugin flow:
-
+Install:
 ```text
 /plugin marketplace add itential/builder-skills
 /plugin install itential-builder@itential-builder
 ```
 
-Use slash commands:
+Or clone the repo. `.claude/skills/<name>/SKILL.md` is committed and ready.
 
+Invoke:
 ```text
-/itential-builder:spec-agent
-/itential-builder:builder-agent
+/builder-agent
+/spec-agent
 ```
 
-For local development, generated command wrappers live in `.claude/commands/` and canonical skill content is mirrored into `.claude/skills/`.
+## Codex CLI
 
-## Codex
-
-Codex supports two usage modes.
-
-### Repo-Local Use
-
-Codex uses `AGENTS.md` directly. No separate Codex skill install is required when working inside this repository.
-
-Open the repository in Codex and ask for the skill by name:
-
-```text
-Use builder-agent to implement the approved solution design.
-```
-
-Codex should resolve that through `AGENTS.md` to:
-
-```text
-skills/builder-agent/SKILL.md
-```
-
-For a command-like terminal helper:
-
+Install:
 ```bash
-scripts/use-skill builder-agent
+codex plugin marketplace add itential/builder-skills
+codex plugin add itential-builder-skills
 ```
 
-### Global Codex Skill Install
+Or clone the repo. `.agents/skills/<name>/SKILL.md` is committed and ready.
 
-For use outside this repository, install the bundled Codex meta-skill with Skill Installer:
-
-```bash
-python3 ~/.codex/skills/.system/skill-installer/scripts/install-skill-from-github.py \
-  --repo itential/builder-skills \
-  --path codex/itential-builder-skills
-```
-
-After installing, restart Codex. The skill appears as:
-
+Invoke:
 ```text
-itential-builder-skills
+$builder-agent
 ```
-
-The Codex meta-skill bundles the domain references under `codex/itential-builder-skills/references/` so users do not need to install every domain skill separately.
+Or `/skills` to pick from a list. Or describe the task and let Codex auto-route.
 
 ## Cursor
 
-Cursor reads `.cursor/rules/*.mdc` and `AGENTS.md`.
+Install: cursor.com/marketplace → "Add to Cursor".
 
-Use natural language or slash-style text:
+Or clone the repo. `.agents/skills/<name>/SKILL.md` is committed and ready (same file Codex uses).
 
+Invoke:
 ```text
-Use /solution-arch-agent to run feasibility.
+/builder-agent
 ```
-
-Cursor rules point back to `AGENTS.md` and `skills/{skill-name}/SKILL.md`.
 
 ## GitHub Copilot
 
-Copilot reads `.github/copilot-instructions.md`. Reusable prompt wrappers are generated in `.github/prompts/*.prompt.md`.
-
-Use the matching prompt file from Copilot Chat, or ask in natural language:
-
-```text
-Use the builder-agent prompt to build this approved design.
+Install:
+```bash
+gh skill install itential/builder-skills <skill-name>
 ```
 
-## Regenerating Wrappers
+Or clone the repo. `.github/skills/<name>/SKILL.md` is committed and ready.
 
-After adding or renaming a skill:
+Invoke:
+```text
+/builder-agent
+```
+Or describe the task and let Copilot auto-route.
 
+## Regenerate Local-Repo Mirrors
+
+After editing `skills/`:
 ```bash
 scripts/generate-vendor-wrappers.sh
 scripts/check-generated.sh
 ```
 
-Wrappers must stay thin. Do not copy full skill content into vendor command or prompt files.
+## Reference
 
-For the source/generated architecture, see `docs/multi-vendor-architecture.md`.
+| Vendor | Install | Local clone path | Invoke |
+|---|---|---|---|
+| Claude Code | `claude plugin install` | `.claude/skills/` | `/skill-name` |
+| Codex CLI | `codex plugin add` | `.agents/skills/` | `$skill-name`, `/skills`, or auto-route |
+| Cursor | Plugin marketplace | `.agents/skills/` | `/skill-name` |
+| GitHub Copilot | `gh skill install` | `.github/skills/` | `/skill-name` or auto-route |
