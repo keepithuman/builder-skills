@@ -4,6 +4,31 @@ set -euo pipefail
 REPO="itential/builder-skills"
 AGENTS=(github-copilot claude-code cursor codex)
 
+usage() {
+  cat >&2 <<EOF
+Usage: $(basename "$0") [agent] [scope] [--update] [--version <ref>]
+
+  agent      github-copilot | claude-code | cursor | codex (prompts if omitted)
+  scope      project (default) | user
+  --update   force re-fetch even if already installed (same as re-running install)
+  --version  pin to a tag/ref instead of latest (e.g. v1.6.7)
+EOF
+  exit 1
+}
+
+update=false
+version=""
+positional=()
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --update|-u) update=true; shift ;;
+    --version) version="$2"; shift 2 ;;
+    -h|--help) usage ;;
+    *) positional+=("$1"); shift ;;
+  esac
+done
+
 if ! command -v gh >/dev/null 2>&1; then
   echo "ERROR: gh (GitHub CLI) is required. Install: https://cli.github.com/" >&2
   exit 1
@@ -15,7 +40,7 @@ if ! gh skill --help >/dev/null 2>&1; then
   exit 1
 fi
 
-agent="${1:-}"
+agent="${positional[0]:-}"
 if [[ -z "${agent}" ]]; then
   echo "Select an agent:"
   select agent in "${AGENTS[@]}"; do
@@ -23,12 +48,22 @@ if [[ -z "${agent}" ]]; then
   done
 fi
 
-scope="${2:-project}"
+scope="${positional[1]:-project}"
 
-echo "Installing all itential/builder-skills skills for --agent ${agent} --scope ${scope}..."
+target="${REPO}"
+[[ -n "${version}" ]] && target="${REPO}@${version}"
+
+action="Installing"
+$update && action="Updating"
+echo "${action} all itential/builder-skills skills for --agent ${agent} --scope ${scope}..."
+
 start=$(date +%s.%N)
-gh skill install "${REPO}" --agent "${agent}" --scope "${scope}" --all
+if $update; then
+  gh skill install "${target}" --agent "${agent}" --scope "${scope}" --all --force
+else
+  gh skill install "${target}" --agent "${agent}" --scope "${scope}" --all
+fi
 end=$(date +%s.%N)
 
 elapsed=$(python3 -c "print(f'{${end} - ${start}:.2f}')")
-echo "Done. Installed for ${agent} (scope: ${scope}) in ${elapsed}s."
+echo "Done. ${action%ing}ed for ${agent} (scope: ${scope}) in ${elapsed}s."

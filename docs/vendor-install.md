@@ -2,15 +2,29 @@
 
 Canonical skill content: `skills/{skill-name}/SKILL.md`. Root manifest: `plugin.json` (agent-plugins.org v1.0.0).
 
-## Quick Install (any agent)
+## Quick Install / Update (any agent)
 
 ```bash
-scripts/install-for-agent.sh                    # interactive picker, times the install
-scripts/install-for-agent.sh claude-code         # non-interactive
-scripts/install-for-agent.sh cursor user         # scope: project (default) or user
+scripts/install-for-agent.sh                       # interactive picker, times the install
+scripts/install-for-agent.sh claude-code            # non-interactive
+scripts/install-for-agent.sh cursor user            # scope: project (default) or user
+scripts/install-for-agent.sh codex project --update # re-fetch latest
+scripts/install-for-agent.sh codex project --version v1.6.7  # pin a version
 ```
 
-Wraps `gh skill install itential/builder-skills --agent <agent> --all`. Requires a `gh` version with `gh skill` support (`gh skill --help`). Supported `--agent` values: `github-copilot`, `claude-code`, `cursor`, `codex`, plus 40+ others `gh skill install --help` lists.
+One script, one flag for update — not two scripts. Both install and update go through `gh skill install itential/builder-skills --agent <agent> --all`, adding `--force` for `--update`. Requires a `gh` version with `gh skill` support (`gh skill --help`). Supported `--agent` values: `github-copilot`, `claude-code`, `cursor`, `codex`, plus 40+ others `gh skill install --help` lists.
+
+## Update, if not using the script
+
+| Vendor | Command |
+|---|---|
+| Claude Code | Auto-updates in the background, or `/plugin marketplace update itential-builder` to force a refresh |
+| Codex CLI | `codex plugin marketplace upgrade itential-builder` then `codex plugin add itential-builder@itential-builder` |
+| Cursor | Marketplace UI |
+| GitHub Copilot | `copilot plugin update itential-builder` |
+| Any local clone | `git pull` |
+
+These genuinely differ per vendor — Claude Code auto-updates, Codex needs two steps, Copilot is one command. `scripts/install-for-agent.sh --update` sidesteps this entirely by always going through `gh skill install`, which handles per-agent placement itself.
 
 ## Per-Vendor (manual)
 
