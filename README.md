@@ -86,7 +86,7 @@ Then start your first delivery from inside that folder:
 
 See [`docs/quickstart.md`](docs/quickstart.md) for the full setup and first delivery walkthrough.
 
-For Claude slash commands, Codex global skill install, Cursor rules, and GitHub Copilot prompt compatibility, see [`docs/vendor-install.md`](docs/vendor-install.md). For the source/generated model, see [`docs/multi-vendor-architecture.md`](docs/multi-vendor-architecture.md). For governance, see [`docs/constitution.md`](docs/constitution.md).
+For install and invocation per tool (Claude Code, Codex CLI, Cursor, GitHub Copilot), see [`docs/vendor-install.md`](docs/vendor-install.md). For the source/generated model, see [`docs/multi-vendor-architecture.md`](docs/multi-vendor-architecture.md). For governance, see [`docs/constitution.md`](docs/constitution.md).
 
 ---
 
