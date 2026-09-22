@@ -8,6 +8,20 @@ argument-hint: "[action or agent-name]"
 
 FlowAI lets you create AI agents that use LLMs (Claude, OpenAI, Ollama, Databricks) to autonomously operate the Itential Platform. Agents can call adapters, run workflows, invoke IAG services, and delegate to other agents — all driven by natural language objectives.
 
+---
+
+## Customization
+
+Before using this skill, check `custom/org/`, `custom/team/`, and `custom/dev/`
+in this skill's own directory. Read every `.md` file found, in that order
+(any folder may be empty or absent). Apply them in addition to everything
+below — where a file overrides a specific rule from this document, prefer
+the override; more specific wins (dev over team over org). See
+`.claude/CUSTOMIZATION.md` for the full framework and what belongs in
+which layer.
+
+---
+
 ## Concepts
 
 - **Agent** — a named AI entity with an LLM provider, system/user messages, an identity (platform credentials), and capabilities (which tools, projects, workflows, and sub-agents it can use)
