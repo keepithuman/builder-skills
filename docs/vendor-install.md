@@ -46,6 +46,8 @@ Invoke:
 
 ## Codex CLI
 
+**Decide before you install, not after:** if you think you'll ever want a `custom/` override, clone/fork the repo directly (below) instead of installing via the plugin commands. Codex's plugin update mechanism (`codex plugin marketplace upgrade` + `codex plugin add`) deletes the entire previous version's install directory on every update — any customization you added there, tracked or not, is gone with no warning. There's no way to add it safely after the fact once you've started this way; you'd have to switch to the clone/fork path anyway. See `docs/customization.md` for the verified details.
+
 Install:
 ```bash
 codex plugin marketplace add itential/builder-skills
