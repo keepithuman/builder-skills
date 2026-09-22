@@ -14,13 +14,19 @@ For Golden Configurations, compliance, and grading, use `/itential-golden-config
 
 ## Customization
 
-Before using this skill, check `custom/org/`, `custom/team/`, and `custom/dev/`
-in this skill's own directory. Read every `.md` file found, in that order
-(any folder may be empty or absent). Apply them in addition to everything
-below — where a file overrides a specific rule from this document, prefer
-the override; more specific wins (dev over team over org). See
-`docs/customization.md` for the full framework and what belongs in
-which layer.
+Before using this skill, check two layers, most specific wins:
+
+1. Repo-wide: `customizations/org/`, `customizations/team/`, `customizations/developer/`
+   at the repo root (applies to every skill).
+2. Per-skill: `custom/org/`, `custom/team/`, `custom/dev/` in this skill's own
+   directory (applies only to this skill, overrides the repo-wide layer above).
+
+Read every `.md` file found, any folder may be empty or absent. Apply them in
+addition to everything below — where a file overrides a specific rule from
+this document, prefer the override; more specific wins (per-skill dev > team >
+org > repo-wide developer > team > org). See `docs/customization.md` for the
+full per-skill framework and `AGENTS.md`'s Customization Layers section for
+the combined precedence.
 
 ---
 

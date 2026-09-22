@@ -6,6 +6,8 @@ Instead, each skill has a `custom/` folder reserved for customer-owned content. 
 
 This applies no matter which vendor tool you use (Claude Code, Codex CLI, Cursor, GitHub Copilot) — the mechanism lives in the canonical `skills/` tree, not in any vendor-specific mirror.
 
+**This is the per-skill half of a two-layer system.** There's also a repo-wide `customizations/{org,team,developer}/` at the repo root, for rules that apply to every skill uniformly rather than just one — see `AGENTS.md`'s Customization Layers section for how the two combine and their full precedence order. The repo-wide layer is meant for an Itential-internal team customizing their own copy of this repo (its `org`/`team` files are tracked in git); the per-skill layer below is meant for a customer's own fork (gitignored by default, force-trackable — see Path B below).
+
 ## Structure
 
 ```
