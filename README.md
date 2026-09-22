@@ -119,7 +119,7 @@ For install and invocation per tool (Claude Code, Codex CLI, Cursor, GitHub Copi
 
 ## Skills
 
-This repository is AAIF-aligned around [`AGENTS.md`](AGENTS.md) as the canonical cross-vendor agent guide. Canonical skill content lives in [`skills/`](skills/). Claude compatibility files in `.claude/skills/` are generated from `skills/`; run `scripts/sync-vendor-skills.sh` after editing canonical skills and `scripts/check-vendor-skills.sh` before release.
+This repository is AAIF-aligned around [`AGENTS.md`](AGENTS.md) as the canonical cross-vendor agent guide. Canonical skill content lives in [`skills/`](skills/). `.claude/skills/` (Claude Code), `.agents/skills/` (Codex CLI, Cursor), and `.github/skills/` (GitHub Copilot) are real-copy mirrors generated from `skills/`; run `scripts/generate-vendor-wrappers.sh` after editing canonical skills and `scripts/check-vendor-skills.sh` before release.
 
 **Delivery**
 

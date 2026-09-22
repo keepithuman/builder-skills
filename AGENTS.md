@@ -8,21 +8,21 @@ This project contains skills for assisting developers on the Itential Platform. 
 
 > ## Customization Layers
 >
-> Two mechanisms, different scope and audience — both checked before acting, most specific wins:
+> Two mechanisms, different scope and audience — both checked before acting. Numbered below in true precedence order, highest first — most specific wins:
+>
+> **Per-skill** (`skills/<name>/custom/` — a customer's own fork; gitignored by default, force-trackable — see `docs/customization.md`) — applies only to that one skill, and outranks the repo-wide layer below for it:
+> 1. `skills/<name>/custom/dev/`
+> 2. `skills/<name>/custom/team/`
+> 3. `skills/<name>/custom/org/`
 >
 > **Repo-wide** (`customizations/` — Itential-internal team customizing their own copy of this repo; `org`/`team` tracked in git, `developer` gitignored except examples) — applies to every skill:
-> 1. `customizations/developer/` — local developer preferences
-> 2. `customizations/team/` — team-specific standards
-> 3. `customizations/org/` — organization-wide standards
->
-> **Per-skill** (`skills/<name>/custom/` — a customer's own fork; gitignored by default, force-trackable — see `docs/customization.md`) — applies only to that one skill, and overrides the repo-wide layers above for it:
-> 4. `skills/<name>/custom/org/`
-> 5. `skills/<name>/custom/team/`
-> 6. `skills/<name>/custom/dev/`
+> 4. `customizations/developer/`
+> 5. `customizations/team/`
+> 6. `customizations/org/`
 >
 > 7. Core repository guidance — `AGENTS.md`, `skills/`, `docs/constitution.md` — lowest priority, everything above may narrow or override it, but must not violate `docs/constitution.md`.
 >
-> Full precedence, highest to lowest: per-skill `dev` > per-skill `team` > per-skill `org` > repo-wide `developer` > repo-wide `team` > repo-wide `org` > core. Non-conflicting rules from every layer present still apply — this is layering, not replacement. See `docs/customization.md` for the full per-skill framework (decision guide, override format, fork-maintenance workflow).
+> Non-conflicting rules from every layer present still apply — this is layering, not replacement. See `docs/customization.md` for the full per-skill framework (decision guide, override format, fork-maintenance workflow).
 
 ## Skill Router
 
