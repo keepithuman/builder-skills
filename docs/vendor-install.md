@@ -96,6 +96,28 @@ scripts/generate-vendor-wrappers.sh
 scripts/check-generated.sh
 ```
 
+## Customize & Maintain Your Fork
+
+Don't edit a skill's `SKILL.md` directly — those edits get overwritten on update. Each skill has a `skills/<name>/custom/{org,team,dev}/` folder for your own content instead. Full framework (precedence, decision guide, override format) and the per-vendor durability findings: **`docs/customization.md`**.
+
+Short version:
+```bash
+gh repo fork itential/builder-skills --clone
+cd builder-skills
+# add files under skills/<name>/custom/{org,team,dev}/
+scripts/generate-vendor-wrappers.sh   # propagate into .claude/skills, .agents/skills, .github/skills
+git add -f skills/<name>/custom/org/your-file.md   # only if you want it tracked/shared
+git commit -m "org: add customization"
+```
+
+To pull new Itential releases into your fork later:
+```bash
+scripts/update-fork.sh                 # rebase onto upstream/main, regenerate mirrors, validate
+scripts/update-fork.sh --merge         # merge instead of rebase
+```
+
+**This clone/fork path is the only one verified safe for `custom/` content across every vendor.** Claude Code's own plugin installer also preserves it (git-based, verified), but Codex's plugin installer does not (verified — it deletes the entire versioned install directory on update). See `docs/customization.md` for the full per-vendor table.
+
 ## Reference
 
 | Vendor | Install | Local clone path | Invoke |

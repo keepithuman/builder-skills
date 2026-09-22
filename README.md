@@ -154,10 +154,10 @@ This repository is AAIF-aligned around [`AGENTS.md`](AGENTS.md) as the canonical
 
 Every skill above is foundational — owned and updated by Itential. Don't edit a skill's `SKILL.md` directly; those edits get silently overwritten (or produce merge conflicts) the next time this plugin is updated.
 
-Instead, every skill has a `custom/` folder with three layers, read automatically before the skill acts. More specific overrides less specific — `dev` overrides `team` overrides `org` overrides the foundational skill:
+Instead, every skill has a `custom/` folder with three layers, read automatically before the skill acts. More specific overrides less specific — `dev` overrides `team` overrides `org` overrides the foundational skill. This works identically across every vendor tool since it lives in the canonical `skills/` tree:
 
 ```
-.claude/skills/<skill-name>/
+skills/<skill-name>/
 ├── SKILL.md              ← foundational, Itential-owned — never edit this
 └── custom/
     ├── org/                ← company-wide rules (e.g. naming conventions, security policy)
@@ -165,11 +165,9 @@ Instead, every skill has a `custom/` folder with three layers, read automaticall
     └── dev/                ← your own local overrides and drafts
 ```
 
-See [`.claude/CUSTOMIZATION.md`](.claude/CUSTOMIZATION.md) for the full framework — precedence rules, the required format for stating an override, and a decision guide for which layer a given customization belongs in.
+See [`docs/customization.md`](docs/customization.md) for the full framework — precedence rules, the required format for stating an override, and a decision guide for which layer a given customization belongs in.
 
-**Two ways to consume this repo, both safe for `custom/` content:**
-- **Plugin install** (`/plugin update itential-builder@itential-builder`) — simplest. Claude Code's plugin installer keeps each marketplace as a real git clone updated via fetch/merge, so untracked `custom/` content survives an update the same way any untracked file survives a `git pull` (verified directly — see `.claude/CUSTOMIZATION.md`).
-- **Clone or fork directly** — skip the plugin installer, `git pull`/`git merge` from upstream yourself. Same guarantee, plus the option to track and share your `custom/` files across your team. Full setup and update commands are in `.claude/CUSTOMIZATION.md`.
+**Whether `custom/` content survives an update depends on the vendor and how you installed.** Claude Code's plugin installer is git-based and preserves it automatically (verified); Codex's plugin installer wipes the whole install directory on every update (also verified) and never preserves it. **Cloning or forking the repo directly and running `scripts/update-fork.sh` to pull updates is the only path verified safe across every vendor** — see [`docs/customization.md`](docs/customization.md) for the per-vendor breakdown and full setup.
 
 ---
 
@@ -205,7 +203,9 @@ Ready-to-run specs in [`spec-files/demo/`](spec-files/demo/) for walkthroughs an
 - [`docs/developer-flow.md`](docs/developer-flow.md) — full lifecycle diagram and design principles
 - [`docs/builder-flow.md`](docs/builder-flow.md) — build sequence, asset structure, and import pattern
 - [`docs/troubleshooting.md`](docs/troubleshooting.md) — common issues and fixes
-- [`.claude/CUSTOMIZATION.md`](.claude/CUSTOMIZATION.md) — customize any skill without editing it directly (org/team/dev layers)
+- [`docs/customization.md`](docs/customization.md) — customize any skill without editing it directly (org/team/dev layers), and how to maintain a customized fork across upstream updates
+- [`docs/vendor-install.md`](docs/vendor-install.md) — per-vendor install, invoke, and update commands
+- [`docs/multi-vendor-architecture.md`](docs/multi-vendor-architecture.md) — how the canonical `skills/` tree maps to each vendor's plugin format and local-repo mirror
 - [`helpers/`](helpers/) — JSON scaffolds for workflows, templates, projects, and reference patterns
 
 ---

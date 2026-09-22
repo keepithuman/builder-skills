@@ -60,3 +60,11 @@ scripts/check-generated.sh
 Cursor also reads `.agents/skills/` — no separate mirror needed.
 
 See `docs/vendor-install.md` for exact commands.
+
+## Per-Skill Customization
+
+Each skill under `skills/<name>/` has a `custom/{org,team,dev}/` folder for customer-owned overrides, read by the skill before it acts — never edit `SKILL.md` itself. `custom/**` content is gitignored in this repo (real content only ever lives in a customer's own fork) and is carried into all three generated mirrors automatically by `scripts/generate-vendor-wrappers.sh`, same as any other file under `skills/`.
+
+This is a separate mechanism from the repo-root `customizations/{org,team,developer}/` directories listed above under Canonical Sources — see `AGENTS.md`'s Customization Layers note; the two are not yet reconciled.
+
+Full framework, precedence rules, and — critically — per-vendor findings on whether `custom/` content survives a plugin-manager update (it does for Claude Code, verified; it does not for Codex, also verified): **`docs/customization.md`**. `scripts/update-fork.sh` automates the clone/fork maintenance workflow described there.

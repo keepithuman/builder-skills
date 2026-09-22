@@ -17,7 +17,7 @@ This project contains skills for assisting developers on the Itential Platform. 
 >
 > Higher-priority customization may narrow style, naming, defaults, and review expectations, but it must not violate `docs/constitution.md` or fork canonical skill behavior.
 >
-> Note: this `customizations/` concept is separate from the already-shipped `.claude/skills/<name>/custom/{org,team,dev}` mechanism documented in `.claude/CUSTOMIZATION.md` — the two are not yet reconciled.
+> Note: this repo-root `customizations/` concept is separate from the already-shipped, per-skill `skills/<name>/custom/{org,team,dev}` mechanism documented in `docs/customization.md` — the two are not yet reconciled.
 
 ## Skill Router
 
