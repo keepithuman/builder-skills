@@ -89,44 +89,6 @@ use-cases/
 evals/workspace/
 
 # =============================================================================
-# Customer Skill Customization (see docs/customization.md)
-# =============================================================================
-# Real override content lives only in a customer's own fork/clone — never in
-# this repo's tracked history, so an upstream pull can never conflict with or
-# overwrite it. Placeholder .gitkeep files are explicitly kept so the folder
-# structure ships and is discoverable. A fork may force-track a file past this
-# rule with `git add -f` — see docs/customization.md Path B.
-# Same rule applies to the three generated mirrors -- otherwise a plain
-# `git add .claude/skills .agents/skills .github/skills` (as scripts/update-fork.sh
-# runs after regeneration) would silently commit a customer's local-only
-# canonical custom/ file the moment it's mirrored, even if they never
-# force-tracked the canonical copy with `git add -f`.
-skills/*/custom/org/*
-skills/*/custom/team/*
-skills/*/custom/dev/*
-.claude/skills/*/custom/org/*
-.claude/skills/*/custom/team/*
-.claude/skills/*/custom/dev/*
-.agents/skills/*/custom/org/*
-.agents/skills/*/custom/team/*
-.agents/skills/*/custom/dev/*
-.github/skills/*/custom/org/*
-.github/skills/*/custom/team/*
-.github/skills/*/custom/dev/*
-!skills/*/custom/org/.gitkeep
-!skills/*/custom/team/.gitkeep
-!skills/*/custom/dev/.gitkeep
-!.claude/skills/*/custom/org/.gitkeep
-!.claude/skills/*/custom/team/.gitkeep
-!.claude/skills/*/custom/dev/.gitkeep
-!.agents/skills/*/custom/org/.gitkeep
-!.agents/skills/*/custom/team/.gitkeep
-!.agents/skills/*/custom/dev/.gitkeep
-!.github/skills/*/custom/org/.gitkeep
-!.github/skills/*/custom/team/.gitkeep
-!.github/skills/*/custom/dev/.gitkeep
-
-# =============================================================================
 # Python (scripts/)
 # =============================================================================
 __pycache__/

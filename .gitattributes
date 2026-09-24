@@ -1,9 +1,0 @@
-# A customer fork may choose to force-track skills/*/custom/** (or a mirrored
-# .claude/skills, .agents/skills, .github/skills copy) past .gitignore -- see
-# docs/customization.md, Path B. This rule keeps an upstream merge from ever
-# touching those tracked files, even if that customer chooses to track them.
-# Harmless if unused -- enable with: git config merge.ours.driver true
-skills/*/custom/** merge=ours
-.claude/skills/*/custom/** merge=ours
-.agents/skills/*/custom/** merge=ours
-.github/skills/*/custom/** merge=ours

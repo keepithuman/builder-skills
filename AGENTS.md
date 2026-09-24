@@ -2,7 +2,7 @@
 
 This project contains skills for assisting developers on the Itential Platform. Read this first, then use the skills for detailed API references.
 
-**Cross-tool note:** Canonical skill content: `skills/{skill-name}/SKILL.md`. Local-repo mirrors: `.claude/skills/` (Claude Code), `.agents/skills/` (Codex CLI, Cursor), `.github/skills/` (GitHub Copilot) — real copies, edit `skills/` and run `scripts/generate-vendor-wrappers.sh` to update them. Plugin install: `plugin.json` (Codex, Copilot, Cursor); `.claude-plugin/plugin.json` (Claude Code). Invoke: `/skill-name` (Claude Code, Cursor, Copilot), `$skill-name` or `/skills` (Codex). See `docs/vendor-install.md`.
+**Cross-tool note:** Canonical skill content: `skills/{skill-name}/SKILL.md`. Local-repo mirrors: `.claude/skills/` (Claude Code), `.agents/skills/` (Codex CLI, Cursor), `.github/skills/` (GitHub Copilot) — real copies, regenerated from `skills/` by CI (`.github/workflows/generate-mirrors.yml`); edit `skills/` only. Plugin install: `plugin.json` (Codex, Copilot, Cursor); `.claude-plugin/plugin.json` (Claude Code). Invoke: `/skill-name` (Claude Code, Cursor, Copilot), `$skill-name` or `/skills` (Codex). See `docs/vendor-install.md`.
 
 `${CLAUDE_PLUGIN_ROOT}/helpers/...` paths are a Claude Code runtime variable. If unset, resolve as this repo's root.
 
@@ -10,7 +10,7 @@ This project contains skills for assisting developers on the Itential Platform. 
 >
 > Two mechanisms, different scope and audience — both checked before acting. Numbered below in true precedence order, highest first — most specific wins:
 >
-> **Per-skill** (`skills/<name>/custom/` — a customer's own fork; gitignored by default, force-trackable — see `docs/customization.md`) — applies only to that one skill, and outranks the repo-wide layer below for it:
+> **Per-skill** (`skills/<name>/custom/` — committed in a customer's own copy of this repo; always empty upstream — see `docs/customization.md`) — applies only to that one skill, and outranks the repo-wide layer below for it:
 > 1. `skills/<name>/custom/dev/`
 > 2. `skills/<name>/custom/team/`
 > 3. `skills/<name>/custom/org/`

@@ -6,7 +6,7 @@ Instead, each skill has a `custom/` folder reserved for customer-owned content. 
 
 This applies no matter which vendor tool you use (Claude Code, Codex CLI, Cursor, GitHub Copilot) — the mechanism lives in the canonical `skills/` tree, not in any vendor-specific mirror.
 
-**This is the per-skill half of a two-layer system.** There's also a repo-wide `customizations/{org,team,developer}/` at the repo root, for rules that apply to every skill uniformly rather than just one — see `AGENTS.md`'s Customization Layers section for how the two combine and their full precedence order. The repo-wide layer is meant for an Itential-internal team customizing their own copy of this repo (its `org`/`team` files are tracked in git); the per-skill layer below is meant for a customer's own fork (gitignored by default, force-trackable — see Path B below).
+**This is the per-skill half of a two-layer system.** There's also a repo-wide `customizations/{org,team,developer}/` at the repo root, for rules that apply to every skill uniformly rather than just one — see `AGENTS.md`'s Customization Layers section for how the two combine and their full precedence order. The repo-wide layer is meant for an Itential-internal team customizing their own copy of this repo (its `org`/`team` files are tracked in git); the per-skill layer below is meant for a customer's own copy of the repo, committed there like any other file.
 
 ## Structure
 
@@ -25,7 +25,7 @@ skills/<skill-name>/
 
 Any of `org/`, `team/`, `dev/` may be empty or absent. Each may contain zero, one, or several `.md` files — split by topic/owner as the layer grows, rather than forcing everything into one file.
 
-**Always edit the canonical copy under `skills/<name>/custom/`, never a mirror.** `.claude/skills/`, `.agents/skills/`, and `.github/skills/` are generated copies (see `docs/multi-vendor-architecture.md`) — after adding or changing a `custom/` file, run `scripts/generate-vendor-wrappers.sh` to propagate it into all three mirrors so every vendor tool sees it.
+**Always edit the canonical copy under `skills/<name>/custom/`, never a mirror.** `.claude/skills/`, `.agents/skills/`, and `.github/skills/` are generated copies — the `Generate Vendor Mirrors` pipeline (`.github/workflows/generate-mirrors.yml`) copies your `custom/` files into all three when you push. You never run the conversion yourself.
 
 ## Precedence
 
@@ -68,90 +68,64 @@ that look like ticket numbers. Valid: `a1b2`. Invalid: `1a2b`.
 
 Pure additions don't need this format — just state the new rule under an `## ADD:` heading.
 
-## Why customer content never lives in the foundational repo's tracked history
+## Why Itential's updates never conflict with your customizations
 
-`skills/*/custom/**` is gitignored in this repo (see `.gitignore`) except for placeholder files. Itential's own commits never contain real content under a `custom/` path, so pulling an upstream update can never conflict with or overwrite a customer's override — there's nothing there to conflict with.
+Itential never commits real content under any skill's `custom/` folder — a CI check (`.github/workflows/guard-custom.yml`) fails any upstream PR that tries. Only `.gitkeep` placeholders ship. Your `custom/` files live in paths Itential never touches, so merging an Itential update into your copy can't conflict with them or overwrite them.
 
-## How to consume this repo, and how to update each way
+## Setting up, customizing, and updating
 
-There are two ways to get these skills onto your machine, and the update procedure — and how safely it preserves your `custom/` content — genuinely differs per vendor. Don't assume one vendor's behavior generalizes to another; the findings below were each verified directly, not inferred.
+The conversion from `skills/` to each vendor's folder is owned by a pipeline, `.github/workflows/generate-mirrors.yml`, which comes with the repo. You write markdown files and push; the pipeline does the rest.
 
-### Path A — Installed via a vendor's plugin/marketplace mechanism
+### 1. Make your own copy (once)
+
+Use a **private copy**, not GitHub's Fork button — a fork of a public repo can't be made private, and your org's rules usually shouldn't be public:
 
 ```bash
-# Claude Code
-/plugin marketplace add itential/builder-skills
-/plugin install itential-builder@itential-builder
-/plugin update itential-builder@itential-builder      # to update
+gh repo create acme/builder-skills --private
+git clone --bare https://github.com/itential/builder-skills.git
+cd builder-skills.git && git push --mirror https://github.com/acme/builder-skills.git
+cd .. && rm -rf builder-skills.git
+```
 
-# Codex CLI
-codex plugin marketplace add itential/builder-skills
+(Or use GitHub's **Import repository** page with `https://github.com/itential/builder-skills`.)
+
+Then in your copy, open the **Actions** tab and enable workflows — GitHub turns them off by default in a copied repo. Itential's own repo-maintenance workflows (version bump, release notes, PR labels) are skipped automatically outside `itential/builder-skills`; only the mirror pipeline runs.
+
+### 2. Add a customization
+
+```bash
+git clone https://github.com/acme/builder-skills.git && cd builder-skills
+mkdir -p skills/builder-agent/custom/org
+echo "## ADD: workflow naming
+All workflows must be prefixed ACME_." > skills/builder-agent/custom/org/naming.md
+git add skills/builder-agent/custom/org/naming.md
+git commit -m "org: add ACME workflow naming convention"
+git push
+```
+
+(The GitHub web editor works just as well.) Within a minute the pipeline copies the file into `.claude/skills/`, `.agents/skills/`, and `.github/skills/` and commits it — directly to `main`, or, if your `main` is branch-protected, as a PR titled `chore: regenerate vendor mirrors` for you to merge.
+
+### 3. Use it
+
+Either work from a clone of your copy (`git pull` to pick up the pipeline's commit) — every vendor reads its folder straight from the checkout — or install it as a plugin **from your repo, not Itential's**:
+
+```bash
+/plugin marketplace add acme/builder-skills                      # Claude Code
+codex plugin marketplace add acme/builder-skills                 # Codex CLI
 codex plugin add itential-builder@itential-builder
-codex plugin marketplace upgrade itential-builder      # to update, then re-run `plugin add`
-
-# Cursor
-# cursor.com/marketplace → Add to Cursor; update via the marketplace UI
-
-# GitHub Copilot / any of 40+ agents gh skill supports
-gh skill install itential/builder-skills --agent <agent> --all
-gh skill install itential/builder-skills --agent <agent> --all --force   # to update
+gh skill install acme/builder-skills --agent <agent> --all       # Copilot / Cursor / others
 ```
 
-**Whether your `custom/` content survives an update through this path depends entirely on the vendor:**
+Because your customizations are committed in your repo, every install and every update re-fetches them along with the skills — regardless of how the vendor's update mechanism handles its local cache.
 
-| Vendor | Verified behavior | Does `custom/` survive an update? |
-|---|---|---|
-| **Claude Code** | Its plugin marketplace mechanism keeps each installed marketplace as a real local git clone (`.git/` and all), updated via `git fetch`/`merge` from upstream — not a wholesale re-download. Confirmed directly: planted an untracked file in an installed marketplace clone, ran a real fetch+merge that pulled in genuine new upstream commits, and the untracked file came through completely untouched. | **Yes.** `git` only touches what it's syncing, never a file sitting outside its tracked set — and `custom/**/*` content is exactly that: untracked (gitignored) in this repo. |
-| **Codex CLI** | Confirmed directly the opposite: `codex plugin marketplace upgrade` + `codex plugin add` creates a **new, separate version-tagged cache directory** and deletes the old one entirely. Planted a customization file in a v1.6.7 install, bumped to v1.6.8, and the entire v1.6.7 directory — customization included — was gone. | **No, never**, tracked or not. There is no durable in-place customization for a Codex plugin install. Use Path B if you're on Codex and want customization to survive updates. |
-| **Cursor** | Not independently verified this session — the marketplace UI's update mechanism internals aren't published. | **Unknown — don't rely on it.** Use Path B for a guarantee. |
-| **GitHub Copilot** | Not independently verified for `copilot plugin update`/`gh skill install --force`'s internals. However, Copilot also reads `.github/skills/`, `.agents/skills/`, and `.claude/skills/` directly from a local clone with **no plugin manager involved at all** — Path B works natively with zero extra tooling. | **Unknown via the plugin path — but Path B is trivially available**, so prefer it if customization matters to you. |
+### 4. Get Itential's updates
 
-**A more fundamental Codex bug, found and fixed in this repo's history:** `.agents/plugins/marketplace.json`'s plugin entry used to hardcode its content source to `https://github.com/itential/builder-skills.git`, completely independent of which marketplace a customer actually registered. Confirmed live: registering a fork as the marketplace correctly resolved the *marketplace itself* to that fork's checkout, but `codex plugin add` still silently installed Itential's real upstream `main` instead — with no error, just the wrong (stale, non-customized) content. This meant Path A could never serve a customer's fork through Codex at all, independent of the update-durability issue above. Fixed by changing the source to `{"source": "local", "path": "."}`, which resolves relative to wherever the marketplace was actually fetched from — verified live that a fork's `codex plugin add` now installs that fork's own content. The update-durability issue in the table above is unrelated and still applies even with this fix.
-
-### Path B — Clone or fork directly (the only cross-vendor guarantee)
-
-This is the **only path with a verified durability guarantee for every vendor**, because it relies solely on each vendor's local-project skill discovery (`.claude/skills/`, `.agents/skills/`, `.github/skills/` — see `docs/vendor-install.md`), not on any vendor's divergent package manager.
+Pull from `itential/builder-skills` the way your team normally syncs from an upstream — for example:
 
 ```bash
-git clone https://github.com/itential/builder-skills.git
-# or, if you want your own remote to push customizations to:
-gh repo fork itential/builder-skills --clone
+git remote add upstream https://github.com/itential/builder-skills.git   # once
+git pull upstream main
+git push
 ```
 
-Add your `org/`/`team/`/`dev/` files under the relevant skills' `skills/<name>/custom/` folders as usual, then run `scripts/generate-vendor-wrappers.sh` to propagate them into the three vendor mirrors. By default `custom/` files are gitignored (per this repo's `.gitignore`), so they exist on your disk but `git status` won't offer to commit them — fine for solo, local-only customization.
-
-**If you want your `org/`/`team/` files version-controlled and shared with your team**, force-track them past the ignore rule (no need to edit `.gitignore` itself):
-
-```bash
-git add -f skills/iag/custom/org/naming-conventions.md
-git commit -m "org: add IAG naming convention"
-```
-Once a file is tracked this way, normal `git add`/`git commit` works on it going forward — `git` doesn't re-apply `.gitignore` to files it's already tracking.
-
-**Protect those tracked files from ever being touched by an upstream merge.** This repo ships a `.gitattributes` rule for exactly this at the root:
-```
-skills/*/custom/** merge=ours
-```
-Enable it once per clone:
-```bash
-git config merge.ours.driver true
-```
-
-**To update from Itential's upstream, run `scripts/update-fork.sh`** — it fetches upstream, rebases (or merges, with `--merge`) your fork on top, regenerates the three vendor mirrors, validates them, and commits the regeneration if anything changed:
-
-```bash
-scripts/update-fork.sh                 # rebase onto upstream/main (default)
-scripts/update-fork.sh --merge         # merge instead of rebase
-scripts/update-fork.sh --branch v1.7.0 # pull from a specific branch/tag
-```
-
-Or do it by hand:
-```bash
-git remote add upstream https://github.com/itential/builder-skills.git   # one-time
-git fetch upstream
-git merge upstream/main            # or: git rebase upstream/main
-scripts/generate-vendor-wrappers.sh
-scripts/check-vendor-skills.sh
-```
-
-Because Itential's own commits never touch `custom/` paths, and your `merge=ours` rule protects any of your own tracked files there even if that ever changed, this should be conflict-free by construction — you're not depending on manual conflict resolution to keep your customizations intact.
+The push touches `skills/`, so the pipeline regenerates the vendor folders with your customizations included. Nothing else to run. Then update your installs as usual (`git pull`, `/plugin update`, `codex plugin marketplace upgrade` + `codex plugin add`, or `gh skill install ... --force`).

@@ -12,7 +12,7 @@ This repository borrows useful Spec Kit philosophy without adopting Spec Kit CLI
 | Tasks | Build plan/test plan in `solution-design.md` or a dedicated task list |
 | Implementation | `/builder-agent` / `skills/builder-agent/SKILL.md` |
 | Project-local overrides | `customizations/developer/`, `customizations/team/`, `customizations/org/` |
-| Generated agent UX | `scripts/generate-vendor-wrappers.sh` |
+| Generated agent UX | `scripts/generate-vendor-wrappers.sh`, run by `.github/workflows/generate-mirrors.yml` |
 
 ## Why This Is Not A Plain Spec Kit App
 
@@ -39,11 +39,11 @@ This lets organizations and teams bring their own style, naming, policy, and pla
 
 ## Required Checks
 
-Before release:
+Run automatically in CI (`generate-mirrors.yml`, `guard-custom.yml`). To preview locally before release:
 
 ```bash
-scripts/generate-vendor-wrappers.sh
 scripts/check-generated.sh
+scripts/check-custom-empty.sh
 ```
 
 Before staging changes, verify ignored secret files remain untracked:

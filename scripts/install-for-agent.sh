@@ -1,17 +1,18 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-REPO="itential/builder-skills"
+REPO="itential/builder-skills"   # override with --repo for your own copy
 AGENTS=(github-copilot claude-code cursor codex)
 
 usage() {
   cat >&2 <<EOF
-Usage: $(basename "$0") [agent] [scope] [--update] [--version <ref>]
+Usage: $(basename "$0") [agent] [scope] [--update] [--version <ref>] [--repo <owner/repo>]
 
   agent      github-copilot | claude-code | cursor | codex (prompts if omitted)
   scope      project (default) | user
   --update   force re-fetch even if already installed (same as re-running install)
   --version  pin to a tag/ref instead of latest (e.g. v1.6.7)
+  --repo     install from your own copy instead (e.g. acme/builder-skills)
 EOF
   exit 1
 }
@@ -24,6 +25,7 @@ while [[ $# -gt 0 ]]; do
   case "$1" in
     --update|-u) update=true; shift ;;
     --version) version="$2"; shift 2 ;;
+    --repo) REPO="$2"; shift 2 ;;
     -h|--help) usage ;;
     *) positional+=("$1"); shift ;;
   esac
@@ -55,7 +57,7 @@ target="${REPO}"
 
 action="Installing"
 $update && action="Updating"
-echo "${action} all itential/builder-skills skills for --agent ${agent} --scope ${scope}..."
+echo "${action} all ${REPO} skills for --agent ${agent} --scope ${scope}..."
 
 start=$(date +%s.%N)
 if $update; then

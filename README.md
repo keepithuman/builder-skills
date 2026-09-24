@@ -119,7 +119,7 @@ For install and invocation per tool (Claude Code, Codex CLI, Cursor, GitHub Copi
 
 ## Skills
 
-This repository is AAIF-aligned around [`AGENTS.md`](AGENTS.md) as the canonical cross-vendor agent guide. Canonical skill content lives in [`skills/`](skills/). `.claude/skills/` (Claude Code), `.agents/skills/` (Codex CLI, Cursor), and `.github/skills/` (GitHub Copilot) are real-copy mirrors generated from `skills/`; run `scripts/generate-vendor-wrappers.sh` after editing canonical skills and `scripts/check-vendor-skills.sh` before release.
+This repository is AAIF-aligned around [`AGENTS.md`](AGENTS.md) as the canonical cross-vendor agent guide. Canonical skill content lives in [`skills/`](skills/). `.claude/skills/` (Claude Code), `.agents/skills/` (Codex CLI, Cursor), and `.github/skills/` (GitHub Copilot) are real-copy mirrors regenerated from `skills/` by CI (`.github/workflows/generate-mirrors.yml`) on every push to `main` — edit `skills/` only.
 
 **Delivery**
 
@@ -167,7 +167,7 @@ skills/<skill-name>/
 
 See [`docs/customization.md`](docs/customization.md) for the full framework — precedence rules, the required format for stating an override, and a decision guide for which layer a given customization belongs in.
 
-**Whether `custom/` content survives an update depends on the vendor and how you installed.** Claude Code's plugin installer is git-based and preserves it automatically (verified); Codex's plugin installer wipes the whole install directory on every update (also verified) and never preserves it. **Cloning or forking the repo directly and running `scripts/update-fork.sh` to pull updates is the only path verified safe across every vendor** — see [`docs/customization.md`](docs/customization.md) for the per-vendor breakdown and full setup.
+**No scripts to run.** Make a private copy of this repo, commit your files under `skills/<name>/custom/`, and push — the `Generate Vendor Mirrors` pipeline copies them into every vendor's folder. Pull Itential's updates into your copy however you normally sync from upstream; Itential never commits to `custom/`, so updates never conflict with your files. Full setup: [`docs/customization.md`](docs/customization.md).
 
 ---
 

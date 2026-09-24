@@ -43,10 +43,7 @@ Do not edit directly. Real copies, not symlinks.
 
 ## Workflow
 
-```bash
-scripts/generate-vendor-wrappers.sh
-scripts/check-generated.sh
-```
+Edit `skills/` and push. `.github/workflows/generate-mirrors.yml` regenerates the three mirrors on every push to `main` — pushing directly, or opening a `chore: regenerate vendor mirrors` PR where `main` is branch-protected (as it is on `itential/builder-skills`). Nobody runs the conversion by hand. To preview locally: `scripts/check-generated.sh`.
 
 ## Install & Invoke
 
@@ -63,8 +60,8 @@ See `docs/vendor-install.md` for exact commands.
 
 ## Per-Skill Customization
 
-Each skill under `skills/<name>/` has a `custom/{org,team,dev}/` folder for customer-owned overrides, read by the skill before it acts — never edit `SKILL.md` itself. `custom/**` content is gitignored in this repo (real content only ever lives in a customer's own fork) and is carried into all three generated mirrors automatically by `scripts/generate-vendor-wrappers.sh`, same as any other file under `skills/`.
+Each skill under `skills/<name>/` has a `custom/{org,team,dev}/` folder for customer-owned overrides, read by the skill before it acts — never edit `SKILL.md` itself. In `itential/builder-skills` these folders only ever hold `.gitkeep` placeholders — enforced by `.github/workflows/guard-custom.yml` — so real content lives only in a customer's own copy, committed normally. The mirror pipeline carries it into all three vendor folders, same as any other file under `skills/`.
 
-This is a separate mechanism from the repo-root `customizations/{org,team,developer}/` directories listed above under Canonical Sources — see `AGENTS.md`'s Customization Layers note; the two are not yet reconciled.
+This is a separate mechanism from the repo-root `customizations/{org,team,developer}/` directories listed above under Canonical Sources — see `AGENTS.md`'s Customization Layers section for how the two combine.
 
-Full framework, precedence rules, and — critically — per-vendor findings on whether `custom/` content survives a plugin-manager update (it does for Claude Code, verified; it does not for Codex, also verified): **`docs/customization.md`**. `scripts/update-fork.sh` automates the clone/fork maintenance workflow described there.
+Full framework, precedence rules, and the copy → customize → update workflow: **`docs/customization.md`**.
