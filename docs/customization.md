@@ -1,84 +1,23 @@
-# Customizing Foundational Skills
+# Customizing the Skills for Your Org
 
-Every skill under `skills/` is foundational — owned and updated by Itential. Customers should never edit a skill's `SKILL.md` directly: doing so gets silently overwritten or produces merge conflicts the next time that skill is updated upstream.
+Every skill is owned and updated by Itential — don't edit a skill's `SKILL.md`, your changes would be overwritten by the next update. Instead, each skill has a `custom/` folder for your org's rules. The skill reads that folder every time it runs, and applies your rules on top of its own.
 
-Instead, each skill has a `custom/` folder reserved for customer-owned content. The skill's own `SKILL.md` reads it before acting. This document is the shared reference every skill's pointer line links back to — read it once, apply it everywhere.
+You write plain markdown files. A pipeline that ships with the repo takes care of getting them to every AI tool — nobody runs a script.
 
-This applies no matter which vendor tool you use (Claude Code, Codex CLI, Cursor, GitHub Copilot) — the mechanism lives in the canonical `skills/` tree, not in any vendor-specific mirror.
+## At a glance
 
-**This is the per-skill half of a two-layer system.** There's also a repo-wide `customizations/{org,team,developer}/` at the repo root, for rules that apply to every skill uniformly rather than just one — see `AGENTS.md`'s Customization Layers section for how the two combine and their full precedence order. The repo-wide layer is meant for an Itential-internal team customizing their own copy of this repo (its `org`/`team` files are tracked in git); the per-skill layer below is meant for a customer's own copy of the repo, committed there like any other file.
-
-## Structure
-
-```
-skills/<skill-name>/
-├── SKILL.md               ← foundational, Itential-owned, never edited by customers
-└── custom/
-    ├── org/                ← company-wide (e.g. all of ACME Corp)
-    │   ├── naming-conventions.md
-    │   └── security-policies.md
-    ├── team/               ← this team only (e.g. Network Automation)
-    │   └── task-id-format.md
-    └── dev/                ← this individual developer only
-        └── scratch-overrides.md
-```
-
-Any of `org/`, `team/`, `dev/` may be empty or absent. Each may contain zero, one, or several `.md` files — split by topic/owner as the layer grows, rather than forcing everything into one file.
-
-**Always edit the canonical copy under `skills/<name>/custom/`, never a mirror.** `.claude/skills/`, `.agents/skills/`, and `.github/skills/` are generated copies — the `Generate Vendor Mirrors` pipeline (`.github/workflows/generate-mirrors.yml`) copies your `custom/` files into all three when you push. You never run the conversion yourself.
-
-## Precedence
-
-When multiple layers speak to the same rule, **more specific wins**: `dev` overrides `team` overrides `org` overrides the foundational skill. Non-conflicting additions from every layer that exists still apply — this is layering, not replacement.
-
-Files within the same layer should not conflict with each other. If they do, that's an authoring error in that layer to fix directly, not something to resolve by guessing which one "wins."
-
-## Where does a given customization belong?
-
-The organizing question isn't "how specific is this" — it's **who needs to agree to it, or be aware of it, for it to be safe.** Match the blast radius of the change to the layer:
-
-| Ask yourself... | If yes → | Why |
+| Who | When | What |
 |---|---|---|
-| Is this a fact about *my* environment (a sandbox URL, a personal cluster ID, my own test device, a secret path only I use) — not an opinion about how things should be done? | `dev/` | Nobody else needs to agree to this; it's a config detail that happens to differ per person, not a convention. |
-| Is this something I want to try before I know if it works, with real intent to promote or delete it soon? | `dev/`, temporary | Team/org shouldn't be affected by something unproven. This should have an expiration, not live here forever. |
-| Does this apply to everyone on my team, and would a teammate be confused if they didn't know about it? | `team/` | The blast radius is "my team" — the review bar is "my team agrees," not "I decided alone." |
-| Does this represent a company-wide policy (security, compliance, branding) — or would it be actively wrong for one team to do differently from another? | `org/` | The blast radius is everyone; silent divergence per team has organization-level consequences. |
+| One admin | Once | [Set up your org's copy](#1-set-up-your-orgs-copy-once) |
+| Anyone adding a rule | Whenever | [Add a rule](#2-add-a-rule) — write a file, push, check |
+| Everyone on the team | Once | [Install from your copy](#3-everyone-installs-from-your-copy) |
+| One admin | When Itential releases | [Take Itential's updates](#5-take-itentials-updates) |
 
-**Examples:**
-- "My sandbox IAG cluster is `cluster_dev_ankit`" → `dev/` — a config fact, mine alone
-- "Let me try requiring a ticket number in every task description before proposing it to the team" → `dev/`, temporary
-- "Our team always names workflows `NETAUTO_<usecase>`" → `team/` — everyone on the team needs to follow it
-- "No workflow may ever call `runAutoRemediation`" → `org/` — a policy line, wrong for even one team to cross
+---
 
-### A caution on `dev/`
+## 1. Set up your org's copy (once)
 
-`dev/` is for environment/config differences and temporary drafts pending promotion — **not** a general-purpose personal override of team or org conventions. If you find yourself permanently overriding a `team/`-level rule in your own `dev/` file because you personally disagree with it, that override belongs in a conversation with your team (and, if adopted, in `team/`), not in an unreviewed file only you ever see. A `dev/` layer used that way quietly recreates the exact fragmentation problem this whole structure exists to prevent — just scoped to one person instead of the whole org.
-
-## Writing an override — required format
-
-Every override (not addition) must state what it's replacing and why, so it stays auditable as layers accumulate:
-
-```markdown
-## OVERRIDE: task ID format
-Original rule: "Task IDs are hex-only [0-9a-f]{1,4}"
-Replacement: Task IDs must start with a letter a-f, not a digit — our
-ticket-numbering scheme is purely numeric, and we don't want task IDs
-that look like ticket numbers. Valid: `a1b2`. Invalid: `1a2b`.
-```
-
-Pure additions don't need this format — just state the new rule under an `## ADD:` heading.
-
-## Why Itential's updates never conflict with your customizations
-
-Itential never commits real content under any skill's `custom/` folder — a CI check (`.github/workflows/guard-custom.yml`) fails any upstream PR that tries. Only `.gitkeep` placeholders ship. Your `custom/` files live in paths Itential never touches, so merging an Itential update into your copy can't conflict with them or overwrite them.
-
-## Setting up, customizing, and updating
-
-The conversion from `skills/` to each vendor's folder is owned by a pipeline, `.github/workflows/generate-mirrors.yml`, which comes with the repo. You write markdown files and push; the pipeline does the rest.
-
-### 1. Make your own copy (once)
-
-Use a **private copy**, not GitHub's Fork button — a fork of a public repo can't be made private, and your org's rules usually shouldn't be public:
+Make a **private** copy — not GitHub's Fork button, because a fork of a public repo can't be made private:
 
 ```bash
 gh repo create acme/builder-skills --private
@@ -89,40 +28,77 @@ cd .. && rm -rf builder-skills.git
 
 (Or use GitHub's **Import repository** page with `https://github.com/itential/builder-skills`.)
 
-Then in your copy:
-- Open the **Actions** tab and make sure workflows are enabled (GitHub leaves them off in some copied repos). Itential's own repo-maintenance workflows (version bump, release notes, PR labels) skip themselves automatically outside `itential/builder-skills`; only the mirror pipeline runs.
-- **If your `main` is branch-protected**, also turn on **Settings → Actions → General → Workflow permissions → "Allow GitHub Actions to create and approve pull requests"**. It's off by default, and the pipeline needs it to open its regeneration PR when it can't push to `main` directly. Without protection, the pipeline pushes straight to `main` and this setting doesn't matter.
+Then, in the new repo on GitHub:
+- **Actions tab** — if you see a banner saying workflows are disabled, enable them. This is what turns your files into each tool's format.
+- **If you protect `main`** (require PRs): **Settings → Actions → General → Workflow permissions → tick "Allow GitHub Actions to create and approve pull requests"**. Without it, the pipeline can't open its update PR. If `main` isn't protected, skip this.
 
-### 2. Add a customization
+Itential's own maintenance workflows (version bumps, release notes) switch themselves off in your copy — only the customization pipeline runs.
+
+---
+
+## 2. Add a rule
+
+### Decide where it goes
+
+**Which skill?** Put the file in the folder of the skill that should follow it — `skills/builder-agent/custom/…` for how things get built, `skills/solution-arch-agent/custom/…` for how solutions get designed, and so on. If a rule applies to several stages (e.g. a design standard that design, build, and QA should all honor), put a copy in each of those skills.
+
+**Which layer?** Match it to who needs to agree:
+
+| If the rule is… | Put it in | Example |
+|---|---|---|
+| Company policy — wrong for any team to do differently | `org/` | "No workflow may ever call `runAutoRemediation`" |
+| A convention your team agreed on | `team/` | "Our team names workflows `NETAUTO_<usecase>`" |
+| Just yours — your sandbox, your test device, an experiment | `dev/` — see [Personal settings](#personal-settings-dev) | "My sandbox IAG cluster is `cluster_dev_ankit`" |
+
+### Write it
+
+One or more `.md` files per folder, any names. Use `## ADD:` for a new rule. To replace one of the skill's own rules, use `## OVERRIDE:` and say what you're replacing and why, so it stays reviewable:
+
+```markdown
+## ADD: workflow naming
+All workflows must be prefixed ACME_.
+
+## OVERRIDE: task ID format
+Original rule: "Task IDs are hex-only [0-9a-f]{1,4}"
+Replacement: Task IDs must start with a letter a-f, not a digit — our ticket
+numbers are numeric and we don't want task IDs that look like them.
+```
+
+### Push it and check
 
 ```bash
-git clone https://github.com/acme/builder-skills.git && cd builder-skills
-mkdir -p skills/builder-agent/custom/org
-echo "## ADD: workflow naming
-All workflows must be prefixed ACME_." > skills/builder-agent/custom/org/naming.md
+git clone https://github.com/acme/builder-skills.git && cd builder-skills   # first time only
+# create skills/builder-agent/custom/org/naming.md
 git add skills/builder-agent/custom/org/naming.md
-git commit -m "org: add ACME workflow naming convention"
+git commit -m "org: ACME workflow naming"
 git push
 ```
 
-(The GitHub web editor works just as well.) Within a minute the pipeline copies the file into `.claude/skills/`, `.agents/skills/`, and `.github/skills/` and commits it — directly to `main`, or, if your `main` is branch-protected, as a PR titled `chore: regenerate vendor mirrors` for you to merge.
+The GitHub web editor works just as well. Then check the **Actions** tab — within a minute you should see:
+- a green **Generate Vendor Mirrors** run, and
+- a new commit on `main` by `github-actions[bot]`: `chore: regenerate vendor mirrors`.
 
-### 3. Use it
+If `main` is protected, you'll get a PR with that title instead — merge it. That's the rule delivered.
 
-Either work from a clone of your copy (`git pull` to pick up the pipeline's commit) — every vendor reads its folder straight from the checkout — or install it as a plugin **from your repo, not Itential's**:
+---
 
-```bash
-/plugin marketplace add acme/builder-skills                      # Claude Code
-codex plugin marketplace add acme/builder-skills                 # Codex CLI
-codex plugin add itential-builder@itential-builder
-gh skill install acme/builder-skills --agent <agent> --all       # Copilot / Cursor / others
-```
+## 3. Everyone installs from your copy
 
-Because your customizations are committed in your repo, every install and every update re-fetches them along with the skills — regardless of how the vendor's update mechanism handles its local cache.
+Team members follow [`vendor-install.md`](vendor-install.md) for their tool, using `acme/builder-skills` in place of `itential/builder-skills`. Already installed Itential's version? See [Switching to your own copy](vendor-install.md#switching-to-your-own-copy).
 
-### 4. Get Itential's updates
+After a new rule is added, people pick it up with their tool's normal update (or `git pull` if they work from a clone).
 
-Pull from `itential/builder-skills` the way your team normally syncs from an upstream — for example:
+---
+
+## 4. Check the agent is using it
+
+Run the skill and ask it directly — for example, start `/builder-agent` and ask *"Which customization files are you applying?"* It should list your file. If it doesn't, see [Troubleshooting](#troubleshooting).
+
+---
+
+## 5. Take Itential's updates
+
+When Itential publishes a release (**Watch → Custom → Releases** on `itential/builder-skills` to get notified), pull it into your copy the way your team normally syncs from upstream — for example:
 
 ```bash
 git remote add upstream https://github.com/itential/builder-skills.git   # once
@@ -130,4 +106,47 @@ git pull upstream main
 git push
 ```
 
-The push touches `skills/`, so the pipeline regenerates the vendor folders with your customizations included. Nothing else to run. Then update your installs as usual (`git pull`, `/plugin update`, `codex plugin marketplace upgrade` + `codex plugin add`, or `gh skill install ... --force`).
+That's it: the push re-runs the pipeline, and your `custom/` files come through untouched. They can't conflict — Itential never puts anything in `custom/` folders (a check in Itential's repo blocks it). Then let the team know to update their installs.
+
+---
+
+## Personal settings (`dev/`)
+
+`dev/` files are personal, so they're **gitignored** — they never get committed to your org's copy by accident. Where to keep them depends on how you work:
+
+- **Working from a clone:** put them in `skills/<name>/custom/dev/`, then run `scripts/generate-vendor-wrappers.sh` once locally so your tool sees them. This is the one case where you run the script yourself — it's only needed for files that never leave your machine.
+- **Installed as a plugin:** there's no local copy to put them in. Use your tool's own personal instructions instead — e.g. `~/.claude/CLAUDE.md` (Claude Code) or `~/.codex/AGENTS.md` (Codex).
+
+Keep `dev/` for facts about your environment and short-lived experiments. If you find yourself permanently overriding a team rule there, raise it with the team instead — that's what `team/` is for.
+
+---
+
+## Reference
+
+### Folder layout
+
+```
+skills/<skill-name>/
+├── SKILL.md          ← Itential's — never edit
+└── custom/
+    ├── org/          ← company-wide, committed
+    ├── team/         ← your team, committed
+    └── dev/          ← personal, gitignored
+```
+
+Always edit under `skills/`. The copies under `.claude/skills/`, `.agents/skills/`, `.github/skills/` are generated by the pipeline — edits there get overwritten.
+
+### Which rule wins
+
+More specific wins: `dev` over `team` over `org` over the skill's own defaults. Rules that don't conflict all apply together. Two files in the same layer shouldn't contradict each other — if they do, fix the files.
+
+The repo also has a repo-wide `customizations/` folder, used by Itential's internal team; see `AGENTS.md` → Customization Layers for how it combines with the per-skill folders.
+
+### Troubleshooting
+
+| Symptom | Likely cause | Fix |
+|---|---|---|
+| No **Generate Vendor Mirrors** run after pushing | Actions disabled in your copy | Actions tab → enable workflows, then push again or use **Run workflow** |
+| Run failed: "not permitted to create or approve pull requests" | `main` is protected and Actions can't open PRs | Tick the setting in [step 1](#1-set-up-your-orgs-copy-once), then re-run — or open the PR from the link in the log |
+| Agent doesn't mention your file | File not under `skills/<name>/custom/`, or your install is older than the rule | Check the path, then update your install (or `git pull`) |
+| A teammate sees your `dev/` rule | It was committed with `git add -f` | `git rm --cached` it and push |

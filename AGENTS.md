@@ -10,7 +10,7 @@ This project contains skills for assisting developers on the Itential Platform. 
 >
 > Two mechanisms, different scope and audience — both checked before acting. Numbered below in true precedence order, highest first — most specific wins:
 >
-> **Per-skill** (`skills/<name>/custom/` — committed in a customer's own copy of this repo; always empty upstream — see `docs/customization.md`) — applies only to that one skill, and outranks the repo-wide layer below for it:
+> **Per-skill** (`skills/<name>/custom/` — `org`/`team` committed in a customer's own copy of this repo, `dev` personal and gitignored; always empty upstream — see `docs/customization.md`) — applies only to that one skill, and outranks the repo-wide layer below for it:
 > 1. `skills/<name>/custom/dev/`
 > 2. `skills/<name>/custom/team/`
 > 3. `skills/<name>/custom/org/`

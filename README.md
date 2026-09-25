@@ -49,44 +49,54 @@ The result is infrastructure automation that is traceable, repeatable, and deliv
 |-------------|---------|-------|
 | Itential Platform | 6.x | Target platform for every skill |
 | IAG | 5.x | Only for the `/iag` skill |
-| AI coding tool | — | [Claude Code](https://claude.ai/code) is the primary target (`.claude/skills/<name>/SKILL.md`, or `claude plugin install`). GitHub Copilot, Cursor, and Codex CLI each install `plugin.json` + `skills/` directly, or read their own local-repo mirror (`.github/skills/`, `.agents/skills/`). See `AGENTS.md` and `docs/vendor-install.md`. |
+| AI coding tool | — | Claude Code, Codex CLI, GitHub Copilot, or Cursor |
 
 ---
 
 ## Getting Started
 
-**Install:**
+### 1. Install for your tool
 
-| Tool | Steps |
-|------|-------|
-| **Claude Code** | `/plugin marketplace add itential/builder-skills` then `/plugin install itential-builder@itential-builder`. Update anytime with `/plugin update itential-builder@itential-builder`. |
-| **Codex CLI** | `codex plugin marketplace add itential/builder-skills` registers this repo (reads `.agents/plugins/marketplace.json`), then install it from Codex's Plugins UI. |
-| **GitHub Copilot** | No install step. Clone or open this repo — Copilot's coding agent reads `.claude/skills` directly. |
-| **Cursor** | No install step. Clone or open this repo — Cursor auto-discovers skills from `.agents/skills` on start. |
+| Tool | Install |
+|------|---------|
+| **Claude Code** | `/plugin marketplace add itential/builder-skills` then `/plugin install itential-builder@itential-builder` |
+| **Codex CLI** | `codex plugin marketplace add itential/builder-skills` then `codex plugin add itential-builder@itential-builder` |
+| **GitHub Copilot** | `gh skill install itential/builder-skills --agent github-copilot --all` |
+| **Cursor** | `git clone https://github.com/itential/builder-skills.git` and open the folder |
 
-**First-time setup:**
+How to check it worked, run skills, and update — per tool: [`docs/vendor-install.md`](docs/vendor-install.md).
 
-Create a folder for your use case and copy the environment template that matches your platform:
+> **Your org wants its own rules** (naming, design standards, policies)? Set up your org's copy first and install from that instead — [`docs/customization.md`](docs/customization.md). You can also start with Itential's and switch later; it's just a reinstall.
+
+### 2. Connect to your platform
+
+Make a folder for your use case, with a `.env` holding your platform credentials:
 
 ```bash
-mkdir my-use-case
-cp environments/cloud-lab.env my-use-case/.env   # Cloud / OAuth
-# or: cp environments/local-dev.env my-use-case/.env   (Local / Password)
-# or: cp environments/staging.env my-use-case/.env
-cd my-use-case
+mkdir my-use-case && cd my-use-case
+cat > .env <<'EOF'
+PLATFORM_URL=https://your-instance.itential.io
+AUTH_METHOD=oauth
+CLIENT_ID=your-client-id
+CLIENT_SECRET=your-client-secret
+EOF
 ```
 
-Open `.env` and fill in your values — `PLATFORM_URL`, plus either `CLIENT_ID`/`CLIENT_SECRET` (OAuth) or `USERNAME`/`PASSWORD` (local dev).
+On a local/dev platform with a username and password, use `AUTH_METHOD=password` with `USERNAME=` and `PASSWORD=` instead of the client ID/secret. You authenticate once; every skill reuses it.
 
-Then start your first delivery from inside that folder:
+### 3. Verify it's working
 
-```
-/itential-builder:spec-agent
-```
+Open your tool in that folder and ask:
 
-See [`docs/quickstart.md`](docs/quickstart.md) for the full setup and first delivery walkthrough.
+> "I want to automate VLAN provisioning on my platform."
 
-For install and invocation per tool (Claude Code, Codex CLI, Cursor, GitHub Copilot), see [`docs/vendor-install.md`](docs/vendor-install.md). For the source/generated model, see [`docs/multi-vendor-architecture.md`](docs/multi-vendor-architecture.md). For governance, see [`docs/constitution.md`](docs/constitution.md).
+The agent should start the **spec-agent** skill, offer the built-in VLAN Provisioning spec, and ask you about scope — rather than jumping straight to writing code. You can also start it directly: `/itential-builder:spec-agent` (Claude Code), `$spec-agent` (Codex), `/spec-agent` (Copilot, Cursor).
+
+Next: the full first-delivery walkthrough in [`docs/quickstart.md`](docs/quickstart.md).
+
+### Staying up to date
+
+**Watch → Custom → Releases** on this repo to hear about new versions, then update with your tool's command in [`docs/vendor-install.md`](docs/vendor-install.md). Claude Code updates on its own.
 
 ---
 
@@ -152,23 +162,24 @@ This repository is AAIF-aligned around [`AGENTS.md`](AGENTS.md) as the canonical
 
 ## Customization
 
-Every skill above is foundational — owned and updated by Itential. Don't edit a skill's `SKILL.md` directly; those edits get silently overwritten (or produce merge conflicts) the next time this plugin is updated.
-
-Instead, every skill has a `custom/` folder with three layers, read automatically before the skill acts. More specific overrides less specific — `dev` overrides `team` overrides `org` overrides the foundational skill. This works identically across every vendor tool since it lives in the canonical `skills/` tree:
+Want the skills to follow your org's rules — naming conventions, design standards, change policy? Don't edit a skill's `SKILL.md` (updates would overwrite it). Each skill has a `custom/` folder for your rules instead:
 
 ```
 skills/<skill-name>/
-├── SKILL.md              ← foundational, Itential-owned — never edit this
+├── SKILL.md          ← Itential's — never edit
 └── custom/
-    ├── org/                ← company-wide rules (e.g. naming conventions, security policy)
-    ├── team/               ← your team's rules
-    └── dev/                ← your own local overrides and drafts
+    ├── org/          ← company-wide rules
+    ├── team/         ← your team's rules
+    └── dev/          ← personal settings (not committed)
 ```
 
-See [`docs/customization.md`](docs/customization.md) for the full framework — precedence rules, the required format for stating an override, and a decision guide for which layer a given customization belongs in.
+How it works, in four steps:
+1. **Once:** an admin makes a private copy of this repo for your org.
+2. **Add a rule:** commit a markdown file under the right skill's `custom/` folder and push. A pipeline in the repo delivers it to every AI tool — no scripts.
+3. **Install:** everyone installs from your org's copy instead of Itential's.
+4. **Updates:** pull Itential's releases into your copy as you normally sync from upstream. Your rules are never touched.
 
-**No scripts to run.** Make a private copy of this repo, commit your files under `skills/<name>/custom/`, and push — the `Generate Vendor Mirrors` pipeline copies them into every vendor's folder. Pull Itential's updates into your copy however you normally sync from upstream; Itential never commits to `custom/`, so updates never conflict with your files. Full setup: [`docs/customization.md`](docs/customization.md).
-
+Step-by-step guide, with what to check at each step: [`docs/customization.md`](docs/customization.md).
 ---
 
 ## Spec Library

@@ -1,114 +1,158 @@
-# Vendor Install And Command Guide
+# Install, Run, and Update — per Tool
 
-Canonical skill content: `skills/{skill-name}/SKILL.md`. Root manifest: `plugin.json` (agent-plugins.org v1.0.0).
+Find your tool below. Each section is self-contained: install, check it worked, run your first skill, update later.
 
-## Quick Install / Update (any agent)
+**Which repo to install from?**
+- Using the skills as Itential ships them → `itential/builder-skills` (what the commands below show).
+- Your org has its own copy with customizations → use your copy's name instead (e.g. `acme/builder-skills`) in every command. Setting up a copy: [`customization.md`](customization.md).
 
-```bash
-scripts/install-for-agent.sh                       # interactive picker, times the install
-scripts/install-for-agent.sh claude-code            # non-interactive
-scripts/install-for-agent.sh cursor user            # scope: project (default) or user
-scripts/install-for-agent.sh codex project --update # re-fetch latest
-scripts/install-for-agent.sh codex project --version v1.6.7  # pin a version
-```
+Not sure yet? Start with Itential's. Moving to your own copy later is just a reinstall — see [Switching to your own copy](#switching-to-your-own-copy).
 
-One script, one flag for update — not two scripts. Both install and update go through `gh skill install itential/builder-skills --agent <agent> --all`, adding `--force` for `--update`. Requires a `gh` version with `gh skill` support (`gh skill --help`). Supported `--agent` values: `github-copilot`, `claude-code`, `cursor`, `codex`, plus 40+ others `gh skill install --help` lists.
+**Know when there's an update:** on GitHub, **Watch → Custom → Releases** on `itential/builder-skills`.
 
-## Update, if not using the script
-
-| Vendor | Command |
-|---|---|
-| Claude Code | Auto-updates in the background, or `/plugin marketplace update itential-builder` to force a refresh |
-| Codex CLI | `codex plugin marketplace upgrade itential-builder` then `codex plugin add itential-builder@itential-builder` |
-| Cursor | Marketplace UI |
-| GitHub Copilot | `copilot plugin update itential-builder` |
-| Any local clone | `git pull` |
-
-These genuinely differ per vendor — Claude Code auto-updates, Codex needs two steps, Copilot is one command. `scripts/install-for-agent.sh --update` sidesteps this entirely by always going through `gh skill install`, which handles per-agent placement itself.
-
-## Per-Vendor (manual)
+---
 
 ## Claude Code
 
-Install:
+**Install** — in Claude Code:
 ```text
 /plugin marketplace add itential/builder-skills
 /plugin install itential-builder@itential-builder
 ```
+Restart Claude Code once it finishes.
 
-Or clone the repo. `.claude/skills/<name>/SKILL.md` is committed and ready.
+**Check it worked:** run `/plugin` and look for `itential-builder` under installed plugins, or type `/itential-builder:` — the skills appear as suggestions.
 
-Invoke:
+**Run a skill:**
 ```text
-/builder-agent
-/spec-agent
+/itential-builder:spec-agent
 ```
+
+**Update:** Claude Code updates plugins in the background. To update now: `/plugin update itential-builder@itential-builder`, then restart.
+
+<details><summary>Prefer working from a clone instead?</summary>
+
+`git clone https://github.com/itential/builder-skills.git`, open Claude Code in that folder, and run `/spec-agent` (no prefix — skills load from `.claude/skills/`). Update with `git pull`.
+</details>
+
+---
 
 ## Codex CLI
 
-**Customizing?** Install from your own copy of the repo (`codex plugin marketplace add acme/builder-skills`), not Itential's — see Customize below. Customizations then come with every install and update, even though Codex replaces its install folder each time.
-
-Install:
+**Install** — in a terminal:
 ```bash
 codex plugin marketplace add itential/builder-skills
 codex plugin add itential-builder@itential-builder
 ```
 
-Or clone the repo. `.agents/skills/<name>/SKILL.md` is committed and ready.
+**Check it worked:** start `codex`, type `/skills` — the Itential skills are listed.
 
-Invoke:
+**Run a skill:**
 ```text
-$builder-agent
+$spec-agent
 ```
-Or `/skills` to pick from a list. Or describe the task and let Codex auto-route.
+Or pick from `/skills`, or just describe the task and Codex picks the skill.
 
-## Cursor
-
-Install: cursor.com/marketplace → "Add to Cursor".
-
-Or clone the repo. `.agents/skills/<name>/SKILL.md` is committed and ready (same file Codex uses).
-
-Invoke:
-```text
-/builder-agent
+**Update:**
+```bash
+codex plugin marketplace upgrade itential-builder
+codex plugin add itential-builder@itential-builder
 ```
+Both steps are needed — the first fetches the new version, the second installs it.
+
+<details><summary>Prefer working from a clone instead?</summary>
+
+`git clone https://github.com/itential/builder-skills.git`, run `codex` in that folder — skills load from `.agents/skills/`. Update with `git pull`.
+</details>
+
+---
 
 ## GitHub Copilot
 
-Install:
+**Install** — in a terminal (needs a recent GitHub CLI; `gh skill --help` should work):
 ```bash
-gh skill install itential/builder-skills <skill-name>
+gh skill install itential/builder-skills --agent github-copilot --all
 ```
 
-Or clone the repo. `copilot` reads `.github/skills/`, `.agents/skills/`, and `.claude/skills/` — all three are committed and ready; no install step needed.
-
-Invoke:
-```text
-/builder-agent
+**Check it worked:**
+```bash
+copilot skill list
 ```
-Or describe the task and let Copilot auto-route.
+The Itential skills appear under project skills.
 
-Verified live (`copilot skill list`, `copilot --plugin-dir . skill list`): all 17 skills load with zero errors.
+**Run a skill:** `/spec-agent`, or describe the task and Copilot picks the skill.
 
-## Local-Repo Mirrors Are Generated by CI
+**Update:**
+```bash
+gh skill install itential/builder-skills --agent github-copilot --all --force
+```
 
-`.claude/skills/`, `.agents/skills/`, `.github/skills/` are regenerated from `skills/` by `.github/workflows/generate-mirrors.yml` on every push to `main` — nobody runs the conversion by hand. To preview locally before pushing, `scripts/check-generated.sh` regenerates and reports anything stale.
+<details><summary>Prefer working from a clone instead?</summary>
 
-## Customize & Update
+`git clone https://github.com/itential/builder-skills.git` and open that folder — Copilot reads `.github/skills/` directly, no install step. Update with `git pull`.
+</details>
 
-Don't edit a skill's `SKILL.md` directly — those edits get overwritten on update. Each skill has a `skills/<name>/custom/{org,team,dev}/` folder for your own content instead. Full guide: **`docs/customization.md`**.
+---
 
-Short version:
-1. **Copy once:** create a private copy of `itential/builder-skills` (e.g. `acme/builder-skills`) and enable Actions in it. If its `main` is branch-protected, also allow Actions to create pull requests (Settings → Actions → General).
-2. **Customize:** commit markdown files under `skills/<name>/custom/{org,team,dev}/` and push. The pipeline copies them into all three vendor folders.
-3. **Use:** clone your copy, or install the plugin from **your** repo (`acme/builder-skills`) with the commands above.
-4. **Update:** pull `itential/builder-skills` into your copy the way you normally sync from upstream, and push. The pipeline regenerates; your `custom/` files are never touched, because Itential never commits there.
+## Cursor
 
-## Reference
+Itential isn't listed in the Cursor marketplace, so use either option:
 
-| Vendor | Install | Local clone path | Invoke |
+**Install — option A, clone** (simplest):
+```bash
+git clone https://github.com/itential/builder-skills.git
+```
+Open the folder in Cursor. Skills load from `.agents/skills/`.
+
+**Install — option B, into an existing project** (needs a recent GitHub CLI):
+```bash
+gh skill install itential/builder-skills --agent cursor --all
+```
+
+**Check it worked:** in Cursor chat, type `/` — `spec-agent` and the other skills appear.
+
+**Run a skill:** `/spec-agent`
+
+**Update:** option A → `git pull`. Option B → re-run the install command with `--force`.
+
+---
+
+## One script for any tool
+
+If you'd rather not remember per-tool commands, `scripts/install-for-agent.sh` (from a clone of this repo) wraps `gh skill install` for all of them:
+
+```bash
+scripts/install-for-agent.sh                                  # asks which tool
+scripts/install-for-agent.sh codex                            # install
+scripts/install-for-agent.sh codex --update                   # update
+scripts/install-for-agent.sh codex --version v1.6.7           # pin a version
+scripts/install-for-agent.sh codex --repo acme/builder-skills # install from your org's copy
+```
+
+---
+
+## Switching to your own copy
+
+Once your org has a customized copy (see [`customization.md`](customization.md)), remove the Itential install and install from the copy:
+
+| Tool | Remove Itential's, then install yours |
+|---|---|
+| Claude Code | `/plugin uninstall itential-builder@itential-builder`, `/plugin marketplace remove itential-builder`, then the install steps above with `acme/builder-skills` |
+| Codex CLI | `codex plugin marketplace remove itential-builder`, then the install steps above with `acme/builder-skills` |
+| Copilot / Cursor (`gh skill`) | Re-run the install command with `acme/builder-skills` and `--force` |
+| Any clone | `git remote set-url origin https://github.com/acme/builder-skills.git && git pull` |
+
+Nothing to migrate — your org's rules live in the copy, not on your machine.
+
+---
+
+## Quick reference
+
+| Tool | Install | Run | Update |
 |---|---|---|---|
-| Claude Code | `claude plugin install` | `.claude/skills/` | `/skill-name` |
-| Codex CLI | `codex plugin add` | `.agents/skills/` | `$skill-name`, `/skills`, or auto-route |
-| Cursor | Plugin marketplace | `.agents/skills/` | `/skill-name` |
-| GitHub Copilot | `gh skill install` | `.github/skills/` | `/skill-name` or auto-route |
+| Claude Code | `/plugin install itential-builder@itential-builder` | `/itential-builder:spec-agent` | automatic, or `/plugin update itential-builder@itential-builder` |
+| Codex CLI | `codex plugin add itential-builder@itential-builder` | `$spec-agent` | `codex plugin marketplace upgrade itential-builder` + `plugin add` |
+| GitHub Copilot | `gh skill install itential/builder-skills --agent github-copilot --all` | `/spec-agent` | same command + `--force` |
+| Cursor | clone, or `gh skill install ... --agent cursor --all` | `/spec-agent` | `git pull`, or `--force` |
+
+For maintainers: `.claude/skills/`, `.agents/skills/`, `.github/skills/` are generated from `skills/` by CI (`.github/workflows/generate-mirrors.yml`) — edit `skills/` only. See [`multi-vendor-architecture.md`](multi-vendor-architecture.md).
