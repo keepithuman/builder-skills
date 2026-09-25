@@ -89,7 +89,9 @@ cd .. && rm -rf builder-skills.git
 
 (Or use GitHub's **Import repository** page with `https://github.com/itential/builder-skills`.)
 
-Then in your copy, open the **Actions** tab and enable workflows — GitHub turns them off by default in a copied repo. Itential's own repo-maintenance workflows (version bump, release notes, PR labels) are skipped automatically outside `itential/builder-skills`; only the mirror pipeline runs.
+Then in your copy:
+- Open the **Actions** tab and make sure workflows are enabled (GitHub leaves them off in some copied repos). Itential's own repo-maintenance workflows (version bump, release notes, PR labels) skip themselves automatically outside `itential/builder-skills`; only the mirror pipeline runs.
+- **If your `main` is branch-protected**, also turn on **Settings → Actions → General → Workflow permissions → "Allow GitHub Actions to create and approve pull requests"**. It's off by default, and the pipeline needs it to open its regeneration PR when it can't push to `main` directly. Without protection, the pipeline pushes straight to `main` and this setting doesn't matter.
 
 ### 2. Add a customization
 

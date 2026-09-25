@@ -99,7 +99,7 @@ Verified live (`copilot skill list`, `copilot --plugin-dir . skill list`): all 1
 Don't edit a skill's `SKILL.md` directly — those edits get overwritten on update. Each skill has a `skills/<name>/custom/{org,team,dev}/` folder for your own content instead. Full guide: **`docs/customization.md`**.
 
 Short version:
-1. **Copy once:** create a private copy of `itential/builder-skills` (e.g. `acme/builder-skills`) and enable Actions in it.
+1. **Copy once:** create a private copy of `itential/builder-skills` (e.g. `acme/builder-skills`) and enable Actions in it. If its `main` is branch-protected, also allow Actions to create pull requests (Settings → Actions → General).
 2. **Customize:** commit markdown files under `skills/<name>/custom/{org,team,dev}/` and push. The pipeline copies them into all three vendor folders.
 3. **Use:** clone your copy, or install the plugin from **your** repo (`acme/builder-skills`) with the commands above.
 4. **Update:** pull `itential/builder-skills` into your copy the way you normally sync from upstream, and push. The pipeline regenerates; your `custom/` files are never touched, because Itential never commits there.
